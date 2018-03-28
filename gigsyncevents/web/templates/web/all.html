@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+    <body>
+        <h1>All Events</h1>
+        <div>
+            {% for event in all_events|dictsort:"start_date" %}
+                <div>
+                    <p>event_id: {{ event.event_id }}</p>
+                    <p>name: {{ event.name }}</p>
+                    <p>description: {{ event.description }}</p>
+                    <p>start_date: {{ event.start_date }}</p>
+                    <p>start_time: {{ event.start_time }}</p>
+                    <p>end_date: {{ event.end_date }}</p>
+                    <p>end_time: {{ event.end_time }}</p>
+                    <p>venue: {{ event.venue }}</p>
+                    <p>city: {{ event.city }}</p>
+                    <p>cover_link: {{ event.cover_link }}</p>
+                    <p>place_id: {{ event.place_id }}</p>
+                    <br>
+                </div>
+            {% endfor %}
+        </div>
+    </body>
+</html>

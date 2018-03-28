@@ -1,0 +1,83 @@
+{% extends "web/base.html" %}
+
+{% block title %}GigSync Events|Home{% endblock %}
+
+{% block nav %}
+<li class="nav-item active m-sm-2">
+        <a class="nav-link" href="index.html">Home</a>
+    </li>
+    <li class="nav-item m-sm-2">
+        <a class="nav-link" href="#">About</a>
+    </li>
+    <li class="nav-item  m-sm-2">
+        <a class="nav-link" href="#">HowTo</a>
+    </li>
+    <li class="nav-item">
+        <button class="btn btn-outline-gspurple my-2" type="submit">Register</button>
+    </li>
+{% endblock %}
+
+{% block main %}
+    <div id="datespace" class="touch-scroll-list d-flex flex-row justify-content-md-center justify-content-start">
+		<span class="date-pill lead border">All</span>
+		<span class="date-pill lead border">Today</span>
+		<span class="date-pill lead border">Tomorrow</span>
+		<span class="date-pill lead border">Date<i class="far fa-calendar-alt ml-1" id="date-logo"></i></span>
+	</div>
+	<div id="datepicker-conatiner" class="d-flex justify-content-center"><div id="datepicker"></div></div>
+    <div class="container">
+        <div class="event-area d-flex flex-column mr-0">
+
+            {% for gig in gigs %}
+            {% if forloop.first or forloop.counter0|divisibleby:"3" %}
+            <div class="d-flex flex-row justify-content-around my-3 mr-0 p-2 event-cards-row">
+            {% endif %}
+                <div class="event-container">
+                    <div class="card">
+                        <a href="{% url 'web:event' gig.event_id %}"><img src="{{gig.cover_link}}" alt="" class="card-img-top"></a>
+                        <div class="d-flex card-body flex-row p-0 m-0 event-info">
+                            <div class="d-flex flex-column date-focus col-2 border-right m-1 p-1">
+                                <div class="event-month text-center">{{ gig.start_date|date:"N" }}</div>
+                                <div class="event-date text-center">{{ gig.start_date|date:"jS" }}</div>
+                            </div>
+                            <div class="d-flex flex-column justify-content-around event-title col-9 p-1">
+                                <div class="event-name text-center">
+                                    <a href="{% url 'web:event' gig.event_id %}">{{ gig.name }}</a>
+                                </div>
+                                <div class="event-venue text-center">{{ gig.venue }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            {% if forloop.last or forloop.counter|divisibleby:"3" %}
+            </div>   
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block custom_js %}
+<script>
+        $(document).ready(function(){
+           $("#datepicker").datepicker({
+               autoclose: true,
+               format: "dd/mm/yyyy",
+               todayHighlight: true, 
+               title: "Pick a Date",
+           })
+           .on('changeDate', function(){
+               var date_obj = $("#datepicker").datepicker("getDate");
+               //var date_obj = new Date(str(date));
+               var date = Date.parse(date);
+               console.log(date);
+               $("#datepicker").hide();
+           });
+           $("#datepicker").hide();
+           $("#date-logo").click(function(){
+               $("#datepicker").toggle();
+           });
+        });
+    </script>
+{% endblock %}

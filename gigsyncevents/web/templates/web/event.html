@@ -1,0 +1,163 @@
+{% extends 'web/base.html' %}
+
+{% block title %}{{ gig.name }}{% endblock %}
+
+{% block main %}
+<div class="container">
+        <div id="event-cover" class="d-flex justify-content-center flex-column border-bottom">
+            <img class="cover-image px-2 pt-2 img-fluid mt-3" src="{{gig.cover_link}}">
+            <div id="title-banner" class="d-flex flex-row justify-content-center mx-2">
+                <div id="date-focus" class="d-flex-flex-column col-2 text-center">
+                    <div id="event-month">{{ gig.start_date|date:"N" }}</div>
+                    <div id="event-date">{{ gig.start_date|date:"jS" }}</div>
+                </div>
+                <div id="event-title" class="col-10 my-auto">
+                    <p class="text-center my-auto">{{ gig.name }}</p>
+                </div>
+            </div>
+        </div>
+
+		<div class="container d-flex justify-content-center flex-column flex-lg-row border-bottom">
+			<div id="middle-section" class="d-flex flex-column justify-content-start">
+				<div id="event-details" class="d-flex flex-column justify-content-center m-1 border-bottom">
+					<div id="event-datetime" class="d-flex flex-row justify-content-start">
+						<p class="my-auto">Date:</p>
+						<p class="text-muted my-auto">{{ gig.start_date|date:"l" }}, {{ gig.start_date|date:"jS" }} {{ gig.start_date|date:"F" }}, {{ gig.start_date|date:"o" }}</p>
+					</div>
+					<div id="time" class="row">
+						<div id="from" class="d-flex flex-row col justfy-content-center">
+							<p class="my-auto">From:</p>
+							<p class="text-muted my-auto">{{ gig.start_time|time:"P" }}</p>
+						</div>
+						<div id="till" class="d-flex flex-row col justify-content-center">
+							<p class="my-auto">Till:</p>
+							<p class="text-muted my-auto">{{ gig.end_time|time:"P" }}</p>
+						</div>
+					</div>
+					<div id="location" class="d-flex flex-column justify-content-center">
+						<div id="venue-row" class="row justify-content-start">
+							<div class="d-flex flex-row col-md-9 col-lg-6 justify-content-start" id="venue">
+								<p class="my-auto">Location:</p>
+								<p class="text-muted my-auto">{{ gig.venue }}</p>
+							</div>
+							<div class="d-flex flex-row col-md-4 offset-md-4 col-lg-6 offset-lg-0 justify-content-center">
+								<a href="#" id="see-map"><u>See Map</u></a>
+							</div>
+						</div>
+						<div id="map" class="row m-auto">
+							<iframe class="m-auto"
+						frameborder="0" style="border:0"
+						src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAX6bzHr8Tq0neTzrziNJhwtZD5H1S0KCg&q={{ gig.venue|escape|slugify }}&zoom=14" allowfullscreen>
+					</iframe>
+						</div>
+					</div>
+				</div>
+
+				<div id="about-section" class="container d-flex flex-column justify-content-start border-bottom">
+					<p id="about" class="">About this Event</p>
+					<p class="text-muted" id="about-text">
+                        {{ gig.description }}
+					</p>
+				</div>
+
+			</div>
+
+			<div class="d-flex flex-md-column flex-row flex-wrap justify-content-center" id="connect-bar">
+				<p class=" text-center" id="connect-title">Connect On Gigsync</p>
+
+				<div class="d-flex flex-lg-column flex-row" id="connect-gigsync-profile">
+                        <!--<div id="up-arrow" class="invisible text-center rounded-circle arrow"><i class="fas fa-angle-up"></i></div>-->
+                        {% for party in involved_parties %}
+						<div class="profile mx-auto d-flex flex-column">
+								<a href="http://www.gigsync.in/page/{{ party.slug }}"><img class="rounded-circle" src="http://www.gigsync.in/uploads/profile/natural/{{ party.profile_pic }}"></a>
+								<p class="text-center">{{ party.title }}</p>
+                        </div>
+                        {% endfor %}
+						<!--<div id="down-arrow" class="invisible text-center rounded-circle arrow"><i class="fas fa-angle-down"></i></div>-->
+				</div>
+			</div>
+
+		</div>
+	</div>
+	
+	<!-- RELATED CARDS -->
+
+	<div class="related container d-flex flex-column justify-content-center py-2 pt-2 pb-4 mb-4">
+		<div id="related-events" class="clearfix"><p class="lead text-center">Related Events</p></div>
+		<div class="related-card-row container justify-content-center d-flex flex-column flex-lg-row">
+            {% for related in related_events %}
+            <div class="related-card d-flex justify-content-center">
+				<div class="card event-card mx-1">
+					<div class="card-img-top">
+						<a href="{% url 'web:event' related.event_id %}">
+							<img class="img-fluid" src="{{ related.cover_link }}">
+						</a>
+					</div>
+					<div class="card-body p-1">
+						<div class="row d-flex">
+							<div class="col-3 flex-column justify-content-center my-auto border-right pr-0">
+								<div class="col p-0 text-center event-month lead">{{ related.start_date|date:"N" }}</div>
+								<div class="col p-0 text-center lead event-date">{{ related.start_date|date:"jS" }}</div>
+								<!--<div class="col p-0 text-center text-muted">Friday</div>-->
+							</div>
+							<div class="col-9 flex-column">
+								<div class="col text-center lead"><a href="{% url 'web:event' related.event_id %}">{{ related.name|truncatechars:30 }}</a></div>
+								<div class="col text-center my-auto text-muted">{{ related.venue }}</div>
+							</div>
+						</div>
+					</div>
+				</div>
+            </div>
+            {% empty %}
+            <p class="text-center">Sorry! No related Events.</p>
+            {% endfor %}
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block custom_js %}
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+	 crossorigin="anonymous"></script>
+	 <script>
+		$(document).ready(function(){
+			console.log("http://github.com/ttanay");
+			$("#map").hide();
+			$("#see-map").click(function(){
+				$("#map").toggle();
+			});	
+			target = $(".profile");
+			if(target.length > 3){
+				for(var i = 0; i < target.slice(3).length; i++){
+					target[3+i].className = "profile d-none";
+				}
+			}
+			$("#up-arrow").click(function(){
+				console.log("up pressed");
+				console.log($(".profile.d-flex").eq(0).prevAll($(".profile.d-none")).length)
+				if($(".profile.d-flex").eq(0).prevAll($(".profile.d-none")).length > 1){
+					console.log("condition: TRUE");
+					$(".profile.d-flex").eq(-1).attr("class", "profile d-none");
+					$(".profile.d-flex").eq(0).prev($(".profile.d-none")).eq(-1).attr("class", "profile mx-auto d-flex flex-column");
+					/*console.log("next: " + next.className);
+					console.log("prev: " + prev.className);
+					next.className = "profile d-none";
+					prev.className = "profile mx-auto d-flex flex-column";*/
+				}
+			});
+			$("#down-arrow").click(function(){
+				console.log("down pressed");
+				console.log($(".profile.d-flex").eq(-1).nextAll($(".profile.d-none")).length);
+				if($(".profile.d-flex").eq(-1).nextAll($(".profile.d-none")).length > 1){
+					console.log("condition: TRUE");
+					$(".profile.d-flex").eq(-1).next($(".profile.d-none")).eq(0).attr("class", "profile mx-auto d-flex flex-column");
+					$(".profile.d-flex").eq(0).attr("class", "profile d-none");
+					/*console.log("next: " + next.className);
+					console.log("prev: " + prev.className);
+					next.className = "profile mx-auto d-flex flex-column";
+					prev.className = "profile d-none";*/
+				}
+			});
+		});
+     </script>
+     {% endblock %}

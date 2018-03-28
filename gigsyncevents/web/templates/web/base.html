@@ -1,0 +1,82 @@
+{% load staticfiles %}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="https://fonts.googleapis.com/css?family=Montserrat|Raleway" rel="stylesheet">
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+     crossorigin="anonymous">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.standalone.css" />
+	<!--<link rel="stylesheet" href="css/style.css" type="text/stylesheet">-->
+    <link rel="stylesheet" href="{% static 'css/common.css' %}" type="text/css">
+    <script def src="{% static 'js/fontawesome-all.js' %}"></script>
+	<title>{% block title %}GigSync Events{% endblock %}</title>
+</head>
+
+<body>
+	<!--NAVBAR-->
+	<header class="navbar navbar-expand-lg navbar-light bg-light py-0 border-bottom sticky-top">
+		<a class="navbar-brand" href="#">
+			<img src="{% static 'imgs/logo.png' %}" class="rounded my-1">
+		</a>
+		<button class="navbar-toggler custom-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+		 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav ml-auto">
+                {% block nav %}
+				<li class="nav-item m-sm-2">
+					<a class="nav-link" href="index.html">Home</a>
+				</li>
+				<li class="nav-item m-sm-2">
+					<a class="nav-link" href="#">About</a>
+				</li>
+				<li class="nav-item  m-sm-2">
+					<a class="nav-link" href="#">HowTo</a>
+				</li>
+				<li class="nav-item">
+					<button class="btn btn-outline-gspurple my-2" type="submit">Register</button>
+                </li>
+                {% endblock %}
+			</ul>
+			<!--<form class="form-inline my-2 my-lg-0">
+					<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+					
+				</form>-->
+		</div>
+	</header>
+	<!-- END OF NAVBAR-->
+
+
+    {% block main %}{% endblock %}
+
+
+	<!--OPTIONAL GRADIENT-->
+	<!--END OF OPTIONAL GRADIENT-->
+		<!--FOOTER-->
+	<div id="footer">
+
+	</div>
+	<!--END OF FOOTER-->
+	<!-- Optional JavaScript -->
+    <script src="{% static 'js/script.js' %}"></script>
+    {% block custom_js %}{% endblock %}
+	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+	 crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+	 crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+     crossorigin="anonymous"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
+
+</body>
+
+</html>
