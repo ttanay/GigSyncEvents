@@ -18,7 +18,11 @@ def save_gs_data(gs_id, title, slug, profile_pic, subcategory, city, tag, popula
 
     
     gs_object = models.GSProfile.create(gs_id, title, slug, profile_pic, subcategory, city, tag, popular, entity_type)
-    gs_object.save()
+    try:
+        gs_object.save()
+    except Exception as e:
+        print(e)
+        return
     '''
     print('genre: {}'.format(genres))
     for genre in genres:
@@ -33,9 +37,13 @@ def save_gs_data(gs_id, title, slug, profile_pic, subcategory, city, tag, popula
 @shared_task
 def save_fb_data(gs_id, name, fb_profile_link, fb_id):
     uri = graph.strip_uri(fb_profile_link)
-    object = models.FBProfile.create(gs_id, name, fb_profile_link, uri, fb_id)
-    object.save()
-    print('Saved FB data: ' + str(object.gs_id) + ' with fb_id ' + str(object.fb_id))
+    fb_object = models.FBProfile.create(gs_id, name, fb_profile_link, uri, fb_id)
+    try:
+        fb_object.save()
+    except Exception as e:
+        print(e)
+        return
+    print('Saved FB data: ' + str(fb_object.gs_id) + ' with fb_id ' + str(fb_object.fb_id))
     return
 
 @shared_task
@@ -117,7 +125,11 @@ def save_event(event_id, name, description, start_date, start_time, end_date, en
         cover_link=cover_link, 
         place_id=place_id
         )
-    gig.save()
+    try:
+        gig.save()
+    except Exception as e:
+        print(e)
+        return
     #handle_involved_parties(involved_parties)
     q_set = models.GSProfile.objects.filter(title=venue)
     #print('VENUE SAVE QSET:' + str(q_set))
@@ -152,11 +164,14 @@ def delete_event(event_id):
 @shared_task
 def get_event_data(fb_id):
     #print('EVENT DATA FOR: ' + str(fb_id))
+    owner = models.FBProfile.objects.get(fb_id=fb_id)
+    owner_fb_profile_link = owner.fb_profile_link
     user_events_json = graph.get_user_events(fb_id)
     user_events = graph.parse_user_events(user_events_json)
     for user_event in user_events:
         is_valid = graph.is_valid_event(user_event["event_id"])
         involved_parties = graph.get_involved_parties(user_event["event_id"])
+        involved_parties.append(owner_fb_profile_link)
         gs_ids = utility.filter_involved_parties(involved_parties)
         print('get_event_Data: ' + str(involved_parties))
         if is_valid:

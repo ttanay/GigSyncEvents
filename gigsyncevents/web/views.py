@@ -38,14 +38,18 @@ def event(request, event_id):
     related_events = []
     for party in involved_parties:
         events = models.Gig.objects.filter(involved_parties__gs_id=party.gs_id)
-        for event in events[:3]:
-            if event.event_id != event_id:
+        for event in events:
+            if event.event_id == gig.event_id:
+                pass
+            else:
+                print(event_id)
+                print(event.event_id)
                 related_events.append(event)
     
     return render(request, 'web/event.html', {
         "gig": gig,
         "involved_parties": involved_parties,
-        "related_events": related_events,
+        "related_events": related_events[:3],
     })
 
 def all(request):
@@ -66,17 +70,21 @@ def add_event(request, fb_id):
 def today(request):
     today = datetime.date.today()
     q_set = models.Gig.objects.filter(start_date=today)
-    return render(request, 'api/today.html', {'events': q_set})
+    return render(request, 'web/today.html', {'gigs': q_set})
 
 def tomorrow(request):
-    tomorrow = datetime.date.today() - datetime.timedelta(days=1)
+    tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+    print(tomorrow)
     q_set = models.Gig.objects.filter(start_date=tomorrow)
-    return render(request, 'api/tomorrow.html', {'events': q_set})
+    return render(request, 'web/tomorrow.html', {'gigs': q_set})
 
 def date(request, year, month, day):
+    year = int(year)
+    month = int(month)
+    day = int(day)
     date = datetime.date(year=year, month=month, day=day)
-    q_set = models.Gig.objects.filter(start_Date=date)
-    return render(request, 'api/date.html', {'events': q_set})
+    q_set = models.Gig.objects.filter(start_date=date)
+    return render(request, 'web/date.html', {'gigs': q_set})
 
 def filter_by_city(request, city):
     q_set = models.Gig.objects.filter(city=city)
