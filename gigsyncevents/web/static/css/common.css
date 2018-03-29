@@ -6090,8 +6090,16 @@ html, body {
   margin: 0;
   border-radius: 500px;
   background-color: #FFF;
-  color: #8B576C;
+  color: #007bff;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; }
+
+.date-pill *{
+  color: #007bff;
+}
+
+.date-pill:hover{
+  text-decoration: none !important;
+}
 
 .event-details > * {
   padding: 0.5rem; }
@@ -6280,7 +6288,8 @@ iframe {
 
 #map {
   width: 100%;
-  padding: 1rem; }
+  padding: 1rem;
+ }
 
 #connect-bar {
   margin: 1rem;
