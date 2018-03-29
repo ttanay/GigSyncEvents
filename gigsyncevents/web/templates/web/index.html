@@ -19,9 +19,9 @@
 
 {% block main %}
     <div id="datespace" class="touch-scroll-list d-flex flex-row justify-content-md-center justify-content-start">
-		<span class="date-pill lead border">All</span>
-		<span class="date-pill lead border">Today</span>
-		<span class="date-pill lead border">Tomorrow</span>
+            <span class="date-pill lead border"><a href="{% url 'web:all' %}">All</a></span>
+		<span class="date-pill lead border"><a href="{% url 'web:today' %}">Today</a></span>
+		<span class="date-pill lead border"><a href="{% url 'web:tomorrow' %}">Tomorrow</span></a>
 		<span class="date-pill lead border">Date<i class="far fa-calendar-alt ml-1" id="date-logo"></i></span>
 	</div>
 	<div id="datepicker-conatiner" class="d-flex justify-content-center"><div id="datepicker"></div></div>
@@ -36,11 +36,11 @@
                     <div class="card">
                         <a href="{% url 'web:event' gig.event_id %}"><img src="{{gig.cover_link}}" alt="" class="card-img-top"></a>
                         <div class="d-flex card-body flex-row p-0 m-0 event-info">
-                            <div class="d-flex flex-column date-focus col-2 border-right m-1 p-1">
+                            <div class="d-flex flex-column date-focus justify-content-center col-2 border-right m-1 p-1">
                                 <div class="event-month text-center">{{ gig.start_date|date:"N" }}</div>
                                 <div class="event-date text-center">{{ gig.start_date|date:"jS" }}</div>
                             </div>
-                            <div class="d-flex flex-column justify-content-around event-title col-9 p-1">
+                            <div class="d-flex flex-column justify-content-around event-title col-10 p-1">
                                 <div class="event-name text-center">
                                     <a href="{% url 'web:event' gig.event_id %}">{{ gig.name }}</a>
                                 </div>
@@ -60,18 +60,57 @@
 
 {% block custom_js %}
 <script>
+        function getMonthNo(monthString){
+            switch(monthString){
+                case 'Jan': return '01';
+                case 'Feb': return '02';
+                case 'Mar': return '03';
+                case 'Apr': return '04';
+                case 'May': return '05';
+                case 'Jun': return '06';
+                case 'Jul': return '07';
+                case 'Aug': return '08';
+                case 'Sep': return '09';
+                case 'Oct': return '10';
+                case 'Nov': return '11';
+                case 'Dec': return '12';
+            }
+        }
+
+        function getFormattedDate(dateString){
+            console.log('date_string: ' + dateString);
+            monthString = dateString.slice(4,7);
+            monthNo = getMonthNo(monthString);
+            dayNo = dateString.slice(8, 10);
+            yearNo = dateString.slice(11, 15);
+            formattedDate = yearNo + '/' + monthNo + '/' + dayNo + '/';
+            console.log('year: ' + yearNo);
+            console.log('day:' + dayNo);
+            console.log('month: ' + monthNo);
+            return formattedDate;
+        }
+
         $(document).ready(function(){
            $("#datepicker").datepicker({
                autoclose: true,
-               format: "dd/mm/yyyy",
+               format: "YYYY/MM/DD",
                todayHighlight: true, 
+               startDate: Date.now(),
                title: "Pick a Date",
            })
            .on('changeDate', function(){
-               var date_obj = $("#datepicker").datepicker("getDate");
-               //var date_obj = new Date(str(date));
-               var date = Date.parse(date);
-               console.log(date);
+               var date = $("#datepicker").datepicker("getDate");
+               var date_obj = new Date(date.toString());
+               //var date = Date.parse(date);
+               console.log(typeof date_obj);
+               console.log(typeof "df")
+               //redirect_url = 'localhost:8000/date/' + getFormattedDate(date.toString());
+               console.log(window.location.protocol)
+               console.log(window.location.host)
+               console.log(window.location.pathname)
+               redirect_url = window.location.protocol + '//' + window.location.host + '/date/' + getFormattedDate(date.toString())
+               console.log(redirect_url)
+               window.location = redirect_url
                $("#datepicker").hide();
            });
            $("#datepicker").hide();
