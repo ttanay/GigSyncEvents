@@ -164,14 +164,18 @@ def delete_event(event_id):
 @shared_task
 def get_event_data(fb_id):
     #print('EVENT DATA FOR: ' + str(fb_id))
-    owner = models.FBProfile.objects.get(fb_id=fb_id)
-    owner_fb_profile_link = owner.fb_profile_link
+    owners = models.FBProfile.objects.filter(fb_id=fb_id)
+    owner_fb_profile_links = []
+    for owner in owners:
+        owner_fb_profile_link = owner.fb_profile_link
+        owner_fb_profile_links.append(owner_fb_profile_link)
     user_events_json = graph.get_user_events(fb_id)
     user_events = graph.parse_user_events(user_events_json)
     for user_event in user_events:
         is_valid = graph.is_valid_event(user_event["event_id"])
         involved_parties = graph.get_involved_parties(user_event["event_id"])
-        involved_parties.append(owner_fb_profile_link)
+        for owner_fb_profile_link in owner_fb_profile_links:
+            involved_parties.append(owner_fb_profile_link)
         gs_ids = utility.filter_involved_parties(involved_parties)
         print('get_event_Data: ' + str(involved_parties))
         if is_valid:
