@@ -46,7 +46,7 @@ def save_fb_data(gs_id, name, fb_profile_link, fb_id):
     print('Saved FB data: ' + str(fb_object.gs_id) + ' with fb_id ' + str(fb_object.fb_id))
     return
 
-@shared_task
+@task()
 def get_gs_data():
     print('started get_gs_data')
     try:
@@ -154,11 +154,12 @@ def save_event(event_id, name, description, start_date, start_time, end_date, en
     print('saved event data ' + str(gig.event_id))
     return
 
-@shared_task
+@task()
 def delete_event(event_id):
     q_set = models.Gig.objects.filter(event_id=event_id)
     gig_object = q_set[0].delete()
-    print('Deleted Gig object with id: ' + event_id)
+    #event_id = str(event_id)
+    print('Deleted Gig object with id: {}'.format(event_id))
     return 
 
 @shared_task
@@ -208,14 +209,13 @@ def get_event_data(fb_id):
             place_id=user_event["place_id"])
             '''
 
-@task 
+@task() 
 def remove_past_events():
     q_set = models.Gig.objects.all()
     today_date = datetime.date.today()
     for event in q_set:
         if event.start_date < today_date:
-            delete_event(event.event_id)
-    
+            delete_event(event.event_id)    
     print('Past Events Removed')
     return
 
