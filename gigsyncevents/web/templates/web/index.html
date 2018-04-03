@@ -19,7 +19,7 @@
 
 {% block main %}
     <div id="datespace" class="touch-scroll-list d-flex flex-row justify-content-md-center justify-content-start">
-            <span class="date-pill lead border"><a href="{% url 'web:all' %}">All</a></span>
+        <span class="date-pill lead border"><a href="">All</a></span>
 		<span class="date-pill lead border"><a href="{% url 'web:today' %}">Today</a></span>
 		<span class="date-pill lead border"><a href="{% url 'web:tomorrow' %}">Tomorrow</span></a>
 		<span class="date-pill lead border">Date<i class="far fa-calendar-alt ml-1" id="date-logo"></i></span>
@@ -95,7 +95,7 @@
                autoclose: true,
                format: "YYYY/MM/DD",
                todayHighlight: true, 
-               startDate: Date.now(),
+               startDate: new Date(),
                title: "Pick a Date",
            })
            .on('changeDate', function(){
