@@ -15,6 +15,10 @@ def populate(request):
     tasks.get_gs_data.delay()
     return HttpResponse('Populating DB')
 
+def delete(request):
+    tasks.remove_past_events.delay()
+    return HttpResponse('Deleting Past Events')
+
 def home(request):
     gigs = models.Gig.objects.order_by('start_date').all()
     '''events = []
