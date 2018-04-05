@@ -71,14 +71,22 @@ def all(request):
  #   q_set = Gig.objects.filter(subcategory=category)
   #  pass
 
-def filter_by_city(request, city):
+def filter(request):
+    city = request.GET['city']
     all_events = models.Gig.objects.all()
     result_list = []
+    cities = []
     for event in all_events:
-        city_slug = slugify(event.city)
-        if city_slug == city:
-            result_list.append(event)
-    return render(request, 'web/index.html', {'gigs': result_list})
+        if event.city not in cities:
+            cities.append(event.city)
+    if city is not None or city is not 'null' or city is not '':
+        for event in all_events:
+            city_slug = slugify(event.city)
+            if city_slug == city:
+                result_list.append(event)
+    else:
+        result_list = all_events
+    return render(request, 'web/index.html', {'gigs': result_list, 'cities': cities})
 
 def add_event(request, fb_id):
     tasks.get_event_data.delay(fb_id)
@@ -93,18 +101,22 @@ def today(request):
             cities.append(event.city)
     return render(request, 'web/today.html', {'gigs': q_set, 'cities': cities})
 
-def today_by_city(request, city):
+def today_filter(request):
+    city = request.GET['city']
     today = datetime.date.today()
     result_list = []
     q_set = models.Gig.objects.filter(start_date=today)
     cities = []
     for event in q_set:
         if event.city not in cities:
-            cities.append(event.city)
-    for event in q_set:
-        city_slug = slugify(event.city)
-        if city_slug == city:
-            result_list.append(event)
+            cities.append(event.city)    
+    if city is not None or city is not 'null' or city is not '':
+        for event in q_set:
+            city_slug = slugify(event.city)
+            if city_slug == city:
+                result_list.append(event)
+    else:
+        result_list = q_set
     return render(request, 'web/today.html', {'gigs': result_list, 'cities': cities})
 
 def tomorrow(request):
@@ -116,7 +128,8 @@ def tomorrow(request):
             cities.append(event.city)
     return render(request, 'web/tomorrow.html', {'gigs': q_set, 'cities': cities})
 
-def tomorrow_by_city(request, city):
+def tomorrow_filter(request):
+    city = request.GET['city']
     tomorrow = datetime.date.today() + datetime.timedelta(days=1)
     q_set = models.Gig.objects.filter(start_date=tomorrow)
     cities = []
@@ -124,10 +137,13 @@ def tomorrow_by_city(request, city):
     for event in q_set:
         if event.city not in cities:
             cities.append(event.city)
-    for event in q_set:
-        city_slug = slugify(event.city)
-        if city_slug == city:
-            result_list.append(event)
+    if city is not None or city is not 'null' or city is not '':
+        for event in q_set:
+            city_slug = slugify(event.city)
+            if city_slug == city:
+                result_list.append(event)
+    else:
+        result_list = q_set
     return render(request, 'web/tomorrow.html', {'gigs': result_list, 'cities': cities})
 
 def date(request, year, month, day):
@@ -142,7 +158,8 @@ def date(request, year, month, day):
             cities.append(event.city)
     return render(request, 'web/date.html', {'gigs': q_set, 'cities': cities, 'year': int(year), 'month': int(month), 'day': int(day)})
 
-def date_by_city(request, year, month, day, city):
+def date_filter(request, year, month, day):
+    city = request.GET['city']
     year = int(year)
     month = int(month)
     day = int(day)
@@ -153,9 +170,12 @@ def date_by_city(request, year, month, day, city):
     for event in q_set:
         if event.city not in cities:
             cities.append(event.city)
-    for event in q_set:
-        city_slug = slugify(event.city)
-        if city_slug == city:
-            result_list.append(event)
+    if city is not None or city is not 'null' or city is not '':
+        for event in q_set:
+            city_slug = slugify(event.city)
+            if city_slug == city:
+                result_list.append(event)
+    else:
+        result_list = q_set
     return render(request, 'web/date.html', {'gigs': result_list, 'cities': cities, 'year': int(year), 'month': int(month), 'day': int(day)})
 
