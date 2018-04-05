@@ -13,7 +13,7 @@
         <a class="nav-link" href="#">HowTo</a>
     </li>
     <li class="nav-item">
-        <button class="btn btn-outline-gspurple my-2" type="submit">Register</button>
+        <a href="http://www.gigsync.in/#signup-tab"><button class="btn btn-outline-gspurple my-2" type="submit">Register</button></a>
     </li>
 {% endblock %}
 
@@ -23,7 +23,26 @@
 		<span class="date-pill lead border"><a href="{% url 'web:today' %}">Today</a></span>
 		<span class="date-pill lead border"><a href="{% url 'web:tomorrow' %}">Tomorrow</a></span>
 		<span class="date-pill lead border">Date<i class="far fa-calendar-alt ml-1" id="date-logo"></i></span>
-	</div>
+    </div>
+    <div class="container d-flex justify-content-center">
+        <div class="date-pill lead border">
+            <div class="dropdown dropright">
+                <div class="dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    City
+                </div>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    {% for city in cities %}
+                    <a class="dropdown-item" href="{% url 'web:tomorrow_by_city' city|slugify %}">{{ city }}</a>
+                    {% empty %}
+                    Sorry! no cities found.
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+            <p class="text-right">Showing {{ gigs|length }} results</p>
+    </div>
 	<div id="datepicker-conatiner" class="d-flex justify-content-center"><div id="datepicker"></div></div>
     <div class="container">
         <div class="event-area d-flex flex-column mr-0">
@@ -53,6 +72,8 @@
             {% if forloop.last or forloop.counter|divisibleby:"3" %}
             </div>   
             {% endif %}
+            {% empty %}
+                <p class="lead text-center">Sorry! No events on this day.</p>
             {% endfor %}
         </div>
     </div>

@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.utils.text import slugify
 from . import tasks
 from . import models
 
@@ -8,8 +9,6 @@ import json, datetime
 
 
 #HELPER FUNCTIONS
-
-
 
 def populate(request):
     tasks.get_gs_data.delay()
@@ -21,6 +20,10 @@ def delete(request):
 
 def home(request):
     gigs = models.Gig.objects.order_by('start_date').all()
+    cities = []
+    for gig in gigs:
+        if gig.city not in cities:
+            cities.append(gig.city)
     '''events = []
     count = 0
     for event in all_events:
@@ -33,7 +36,8 @@ def home(request):
             "id": event.event_id,
         }
         events.append(event_context)'''
-    return render(request, 'web/index.html', {'gigs': gigs})
+    print(cities)
+    return render(request, 'web/index.html', {'gigs': gigs, 'cities': cities})
 
 
 def event(request, event_id):
@@ -67,6 +71,15 @@ def all(request):
  #   q_set = Gig.objects.filter(subcategory=category)
   #  pass
 
+def filter_by_city(request, city):
+    all_events = models.Gig.objects.all()
+    result_list = []
+    for event in all_events:
+        city_slug = slugify(event.city)
+        if city_slug == city:
+            result_list.append(event)
+    return render(request, 'web/index.html', {'gigs': result_list})
+
 def add_event(request, fb_id):
     tasks.get_event_data.delay(fb_id)
     return HttpResponse('Validating event')
@@ -74,13 +87,48 @@ def add_event(request, fb_id):
 def today(request):
     today = datetime.date.today()
     q_set = models.Gig.objects.filter(start_date=today)
-    return render(request, 'web/today.html', {'gigs': q_set})
+    cities = []
+    for event in q_set:
+        if event.city not in cities:
+            cities.append(event.city)
+    return render(request, 'web/today.html', {'gigs': q_set, 'cities': cities})
+
+def today_by_city(request, city):
+    today = datetime.date.today()
+    result_list = []
+    q_set = models.Gig.objects.filter(start_date=today)
+    cities = []
+    for event in q_set:
+        if event.city not in cities:
+            cities.append(event.city)
+    for event in q_set:
+        city_slug = slugify(event.city)
+        if city_slug == city:
+            result_list.append(event)
+    return render(request, 'web/today.html', {'gigs': result_list, 'cities': cities})
 
 def tomorrow(request):
     tomorrow = datetime.date.today() + datetime.timedelta(days=1)
-    print(tomorrow)
     q_set = models.Gig.objects.filter(start_date=tomorrow)
-    return render(request, 'web/tomorrow.html', {'gigs': q_set})
+    cities = []
+    for event in q_set:
+        if event.city not in cities:
+            cities.append(event.city)
+    return render(request, 'web/tomorrow.html', {'gigs': q_set, 'cities': cities})
+
+def tomorrow_by_city(request, city):
+    tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+    q_set = models.Gig.objects.filter(start_date=tomorrow)
+    cities = []
+    result_list = []
+    for event in q_set:
+        if event.city not in cities:
+            cities.append(event.city)
+    for event in q_set:
+        city_slug = slugify(event.city)
+        if city_slug == city:
+            result_list.append(event)
+    return render(request, 'web/tomorrow.html', {'gigs': result_list, 'cities': cities})
 
 def date(request, year, month, day):
     year = int(year)
@@ -88,13 +136,26 @@ def date(request, year, month, day):
     day = int(day)
     date = datetime.date(year=year, month=month, day=day)
     q_set = models.Gig.objects.filter(start_date=date)
-    return render(request, 'web/date.html', {'gigs': q_set})
+    cities = []
+    for event in q_set:
+        if event.city not in cities:
+            cities.append(event.city)
+    return render(request, 'web/date.html', {'gigs': q_set, 'cities': cities, 'year': int(year), 'month': int(month), 'day': int(day)})
 
-def filter_by_city(request, city):
-    q_set = models.Gig.objects.filter(city=city)
-    return render(request, 'api/city.html', {'events': q_set})
-
-def filter_by_category(request, subcategory):
-    q_set = models.Gig.objects.filter(involved_parties__subcategory=subcategory)
-    return render(request, 'api/filter_cat.html', {'events': q_set})
+def date_by_city(request, year, month, day, city):
+    year = int(year)
+    month = int(month)
+    day = int(day)
+    date = datetime.date(year=year, month=month, day=day)
+    q_set = models.Gig.objects.filter(start_date=date)
+    cities = []
+    result_list = []
+    for event in q_set:
+        if event.city not in cities:
+            cities.append(event.city)
+    for event in q_set:
+        city_slug = slugify(event.city)
+        if city_slug == city:
+            result_list.append(event)
+    return render(request, 'web/date.html', {'gigs': result_list, 'cities': cities, 'year': int(year), 'month': int(month), 'day': int(day)})
 
