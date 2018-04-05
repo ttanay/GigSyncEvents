@@ -121,7 +121,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-CELERY_BROKER_URL = 'amqp://localhost'
+CELERY_BROKER_URL = 'amqp://localhost//'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
@@ -133,5 +133,9 @@ CELERY_BEAT_SCHEDULE = {
     'remove_past_events': {
         'task': 'web.tasks.remove_past_events',
         'schedule': crontab(minute=0, hour=1),
+    },
+    'dummy': {
+        'task': 'web.tasks.dummy',
+        'schedule': crontab(),
     },
 }
