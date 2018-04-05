@@ -24,22 +24,49 @@
 		<span class="date-pill lead border"><a href="{% url 'web:tomorrow' %}">Tomorrow</a></span>
 		<span class="date-pill lead border">Date<i class="far fa-calendar-alt ml-1" id="date-logo"></i></span>
     </div>
-    <div class="container d-flex justify-content-center">
+    <div class="container d-flex justify-content-center"><!--
         <div class="date-pill lead border">
             <div class="dropdown dropright">
                 <div class="dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    City
+                    Filter
                 </div>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     {% for city in cities %}
-                    <a class="dropdown-item" href="{% url 'web:tomorrow_by_city' city|slugify %}">{{ city }}</a>
+                    <a class="dropdown-item" href="{% url 'web:filter'%}">{{ city }}</a>
                     {% empty %}
                     Sorry! no cities found.
                     {% endfor %}
                 </div>
             </div>
-        </div>
+        </div>-->
+        <button type="button" class="btn btn-outline-primary" id="filters">Filters</button>
     </div>
+        <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLongTitle">Filters</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    <div class="modal-body">
+                        <div class="d-flex flex-column">
+                            <p class="lead">City</p>
+                            <ul>
+                                {% for city in cities %}
+                                <li class="city-item"><a href="#">{{ city }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
     <div class="container">
             <p class="text-right">Showing {{ gigs|length }} results</p>
     </div>
@@ -81,6 +108,14 @@
 
 {% block custom_js %}
 <script>
+        function convertToSlug(Text)
+        {
+            return Text
+                .toLowerCase()
+                .replace(/ /g,'-')
+                .replace(/[^\w-]+/g,'')
+                ;
+        }
         function getMonthNo(monthString){
             switch(monthString){
                 case 'Jan': return '01';
@@ -137,6 +172,15 @@
            $("#date-logo").click(function(){
                $("#datepicker").toggle();
            });
+           $("#filters").click(function(){
+            $("#filterModal").modal('show');
+       });
+       $(".city-item").click(function(){
+           var city = convertToSlug($(this).text());
+           redirect_url = window.location.protocol + '//' + window.location.host + '/tomorrow/filter?city=' + city;
+           window.location = redirect_url;
+           console.log(city)
+       });
         });
     </script>
 {% endblock %}
