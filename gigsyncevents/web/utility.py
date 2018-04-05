@@ -3,7 +3,7 @@ import requests, re, bs4
 #import
 from . import models
 from django.utils.text import slugify
-from .graph import strip_uri
+from web import graph
 entity_types = ('Artist', 'Venue', 'Agency')
 
 id_regx_accept = re.compile("fb://page\/\?id=.*?\d*")
@@ -93,7 +93,10 @@ def gen_fb_data(gs_id, slug, name):
     gigsync_profile_link = "http://www.gigsync.in/page/" + slug
     #print(gigsync_profile_link)
     fb_profile_link = get_fb_profile_link(gigsync_profile_link)
-    fb_id = get_fb_id(fb_profile_link)
+    try:
+        fb_id = graph.get_fb_id(fb_profile_link)
+    except Exception as e:
+        fb_id = get_fb_id(fb_profile_link)
     if fb_id == 'null':
         fb_id = None
     fb_data = {
@@ -141,6 +144,7 @@ def get_fb_profile_link(gigsync_profile_link):
 
 
 def get_fb_id(fb_profile_link):
+    print(fb_profile_link)
     fb_id = str()
     if fb_profile_link == "null":
         fb_id = "null"
@@ -148,14 +152,14 @@ def get_fb_id(fb_profile_link):
         r = requests.get(fb_profile_link)
         soup = bs4.BeautifulSoup(r.text, "lxml")
         meta = soup.find("meta", {"content":id_regx_accept})
-        #print(meta)
+        print(meta)
         if meta == None:
             fb_id = "null"
         else:
             #print(meta)
             #print(meta.attrs['content'])
             fb_id = strip_id(meta.attrs['content'])
-    #print(fb_id)
+    print(fb_id)
     return fb_id
 
 def get_artist_genre(slug):
@@ -285,7 +289,7 @@ def gen_tuple(entities):
     return batch_data
 
 def cleanse_fb_profile_link(fb_profile_link):
-    uri = strip_uri(fb_profile_link)
+    uri = graph.strip_uri(fb_profile_link)
     clean_fb_profile_link = 'https://www.facebook.com/{}'.format(uri)
     return clean_fb_profile_link
 
@@ -297,27 +301,27 @@ def party_exists_in_db(uri):
         return False
 
 def handle_involved_parties(involved_parties):
-    print('~~~~~~~~~~~~~~~~~~~~')
-    print(involved_parties)
-    print('~~~~~~~~~~~~~~~~~~~~')
+    #print('~~~~~~~~~~~~~~~~~~~~')
+    #print(involved_parties)
+    #print('~~~~~~~~~~~~~~~~~~~~')
     gs_profiles = []
     for fb_profile_link in involved_parties:
         #fb_profile_link = cleanse_fb_profile_link(fb_profile_link)
-        print('cleanse: ' + fb_profile_link)
-        uri = strip_uri(fb_profile_link)
-        print('handle URI: ' + uri)
+        #print('cleanse: ' + fb_profile_link)
+        uri = graph.strip_uri(fb_profile_link)
+        #print('handle URI: ' + uri)
         fb_profile = party_exists_in_db(uri)
         if fb_profile:
             q_set = models.GSProfile.objects.filter(gs_id=fb_profile.gs_id)
-            print(q_set)
+            #print(q_set)
             gs_profiles.append(q_set[0])
-    print(gs_profiles)
+    #print(gs_profiles)
     return gs_profiles
 
 def filter_involved_parties(involved_parties):
     gs_ids = []
     for fb_profile_link in involved_parties:
-        uri = strip_uri(fb_profile_link)
+        uri = graph.strip_uri(fb_profile_link)
         q_set = models.FBProfile.objects.filter(uri=uri)
         for result in q_set:
             gs_ids.append(result.gs_id)

@@ -20,6 +20,16 @@ accepted_page_types = {
 
 }
 
+def get_fb_id(fb_profile_link):
+    uri = strip_uri(fb_profile_link)
+    graph_call = 'https://graph.facebook.com/{}?access_token={}'.format(uri, access_token)
+    r = requests.get(graph_call)
+    resp_json = json.loads(r.text)
+    #print(resp_json)
+    fb_id = resp_json["id"]
+    print(fb_id)
+    return int(fb_id)
+
 def get_user_events(fb_id):
     api_url = "https://graph.facebook.com/{}/events?access_token={}&fields=description,end_time,start_time,name,place,id,cover".format(fb_id, access_token)
     r = requests.get(api_url)
@@ -84,10 +94,11 @@ def parse_user_events(user_events_json):
                 "save": is_future_event(start_dt),
             }
             user_events.append(user_event)
+            #print("start_date at parse: " + str(user_event["start_date"]))
     except Exception as e:
-        print('user_id is invalid')
+        #print('user_id is invalid')
+        print(e)
     return user_events
-
 
 def is_valid_event(event_id):
     #graph_event_call = "graph.facebook.com/{}?access_token={}&fields=category".format(event_id, access_token)
@@ -104,10 +115,14 @@ def is_valid_event(event_id):
             hrefs.append(href)
     #print('hrefs: ' + str(hrefs))
     for href in hrefs:
-        if is_artist(href):
-            print('is_valid_event: ' + str(True))
-            return True
-    print('is_valid_event: ' + str(False))
+        try:
+            if is_artist(href):
+                print('is_valid_event: ' + str(True))
+                return True
+        except Exception as e:
+            print(e + ' caused_by: {}'.format(href))
+            return False
+    #print('is_valid_event: ' + str(False))
     return False
 
 def get_involved_parties(event_id):
@@ -171,7 +186,7 @@ def strip_uri(profile_link):
             uri = split_list[3]
     except Exception as e:
         print(e)
-    print('uri:' + uri)
+    #print('uri:' + uri)
     return uri
 
 
@@ -183,12 +198,21 @@ def is_artist(profile_link):
     r = requests.get(graph_url)
     raw_json = json.loads(r.text)
     #print(raw_json['category'])
+    try:
+        category = raw_json["category"]
+    except Exception as e:
+        #print('Failure:-------')
+        #print(raw_json)
+        #print(e)
+        #print('------')
+        return False
     if raw_json['category'] in accepted_page_types:
-        print('is_artist: ' + uri + str(True))
+        #print('is_artist: ' + uri + str(True))
         return True
     else:
-        print('is_artist: ' + uri + str(False))
+        #print('is_artist: ' + uri + str(False))
         return False
+        
 
 '''def save_event(event_id, name, description, start_time, end_time, venue, city, cover_link, place_id):
     gig = models.Gig.create(event_id, name, description, start_time, end_time, venue, city, cover_link, place_id)
