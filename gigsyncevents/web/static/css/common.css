@@ -6150,7 +6150,7 @@ html, body {
 .touch-scroll-list {
   white-space: nowrap;
   overflow-x: auto;
-  overflow-y: hidden;
+  /*overflow-y: hidden;*/
   /*@media (max-width: 991.98px){
         padding: 0 $spacer*1;
         overflow-x: scroll;
@@ -6169,7 +6169,7 @@ html, body {
       width: 90%;
       margin: auto 2rem;
       overflow-x: auto;
-      overflow-y: hidden;
+      /*overflow-y: hidden;*/
       z-index: 5;
       border-bottom: 1px #6c757d; }
       .touch-scroll-list::-webkit-scrollbar {
