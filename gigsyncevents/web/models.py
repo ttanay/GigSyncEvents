@@ -27,10 +27,11 @@ class GSProfile(models.Model):
     tag = models.TextField(null=True)
     popular = models.TextField(null=True)
     entity_type = models.CharField(max_length=255)
+    genres = models.TextField(null=True)
 
     @classmethod
-    def create(cls, gs_id, title, slug, profile_pic, subcategory, city, tag, popular, entity_type):
-        gs_object = cls(gs_id=gs_id, title=title, slug=slug, profile_pic=profile_pic, subcategory=subcategory, city=city, tag=tag, popular=popular, entity_type=entity_type)
+    def create(cls, gs_id, title, slug, profile_pic, subcategory, city, tag, popular, entity_type, genres):
+        gs_object = cls(gs_id=gs_id, title=title, slug=slug, profile_pic=profile_pic, subcategory=subcategory, city=city, tag=tag, popular=popular, entity_type=entity_type, genres=genres)
 
         '''
         self.gs_id = gs_id
@@ -58,9 +59,9 @@ class GSProfile(models.Model):
         genres_json = json.dumps(genres)
         return genres_json
 
-    '''def get_genres(self):
+    def get_genres(self):
         genres = json.loads(self.genres)
-        return genres'''
+        return genres["genres"]
 
     def __str(self):
         print("id: " + str(self.gs_id) + "| title: " + str(self.title))

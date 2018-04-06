@@ -120,7 +120,7 @@ def is_valid_event(event_id):
                 print('is_valid_event: ' + str(True))
                 return True
         except Exception as e:
-            print(e + ' caused_by: {}'.format(href))
+            print(str(e) + ' caused_by: {}'.format(str(href)))
             return False
     #print('is_valid_event: ' + str(False))
     return False

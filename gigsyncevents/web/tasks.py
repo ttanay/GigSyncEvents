@@ -14,10 +14,11 @@ search_url = "http://www.gigsync.in/search"
 
 # POPUlATE APP
 @shared_task
-def save_gs_data(gs_id, title, slug, profile_pic, subcategory, city, tag, popular, entity_type): 
-
-    
-    gs_object = models.GSProfile.create(gs_id, title, slug, profile_pic, subcategory, city, tag, popular, entity_type)
+def save_gs_data(gs_id, title, slug, profile_pic, subcategory, city, tag, popular, entity_type, genres): 
+    genres = {'genres': genres}
+    print(genres)
+    genres = models.GSProfile.jsonify_genres(genres)
+    gs_object = models.GSProfile.create(gs_id, title, slug, profile_pic, subcategory, city, tag, popular, entity_type, genres)
     try:
         gs_object.save()
     except Exception as e:
@@ -61,7 +62,7 @@ def get_gs_data():
                 if entities == []:
                     break
                 for entity in entities:
-                    #genres = utility.get_artist_genre(entity["slug"])
+                    genres = utility.get_artist_genre(entity["slug"])
                     #print('genres(tasks): {}'.format(genres))
                     save_gs_data(
                         gs_id=entity["gs_id"],
@@ -73,7 +74,7 @@ def get_gs_data():
                         tag=entity["tag"],
                         popular=entity["popular"],
                         entity_type=entity_type,
-                        #genres=genres,
+                        genres=genres,
                     )
                     get_fb_data.delay(entity["gs_id"], entity["title"], entity["slug"])
                 i += 1

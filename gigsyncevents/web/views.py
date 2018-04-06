@@ -21,9 +21,15 @@ def delete(request):
 def home(request):
     gigs = models.Gig.objects.order_by('start_date').all()
     cities = []
+    genres = []
     for gig in gigs:
         if gig.city not in cities:
             cities.append(gig.city)
+        for party in gig.involved_parties.all():
+            party_genres = party.get_genres()
+            for genre in party_genres:
+                if genre not in genres:
+                    genres.append(genre)
     '''events = []
     count = 0
     for event in all_events:
@@ -36,6 +42,7 @@ def home(request):
             "id": event.event_id,
         }
         events.append(event_context)'''
+    print(genres)
     print(cities)
     return render(request, 'web/index.html', {'gigs': gigs, 'cities': cities})
 
@@ -72,9 +79,11 @@ def all(request):
   #  pass
 
 def filter(request):
+    genres = set(request.GET['genres'].split(','))
     city = request.GET['city']
     all_events = models.Gig.objects.all()
     result_list = []
+    filtered_list = []
     cities = []
     for event in all_events:
         if event.city not in cities:
@@ -86,7 +95,16 @@ def filter(request):
                 result_list.append(event)
     else:
         result_list = all_events
-    return render(request, 'web/index.html', {'gigs': result_list, 'cities': cities})
+    if genres:
+        for event in result_list:
+            for party in event.involved_parties.all():
+                party_genres = [slugify(genre) for genre in party.get_genres()]
+                party_genres = set(party_genres)
+                print(party_genres.intersection(genres))
+                if party_genres.intersection(genres):
+                    filtered_list.append(event)
+                    break
+    return render(request, 'web/index.html', {'gigs': filtered_list, 'cities': cities})
 
 def add_event(request, fb_id):
     tasks.get_event_data.delay(fb_id)
