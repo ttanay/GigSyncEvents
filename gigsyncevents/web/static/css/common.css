@@ -6325,4 +6325,13 @@ iframe {
       visibility: visible !important;
       background: #d9dbdd;
       padding: 0.5rem 0;
-      margin: 0 3.5rem; } }
+      margin: 0 3.5rem; 
+    } 
+  }
+
+#filterModal{
+  height: 100% !important;
+}
+/*#genres > *{
+  margin: 0.5rem;
+}*/
