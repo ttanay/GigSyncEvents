@@ -42,16 +42,22 @@ def home(request):
             "id": event.event_id,
         }
         events.append(event_context)'''
-    print(genres)
-    print(cities)
-    return render(request, 'web/index.html', {'gigs': gigs, 'cities': cities})
+    #print(genres)
+    #print(cities)
+    return render(request, 'web/index.html', {'gigs': gigs, 'cities': cities, 'genres': genres})
 
 
 def event(request, event_id):
     gig = models.Gig.objects.get(event_id=event_id)
     involved_parties = gig.involved_parties.all()
     related_events = []
+    genres = []
+    excess_genres = 0
     for party in involved_parties:
+        party_genres = party.get_genres()
+        for genre in party_genres:
+            if genre not in genres:
+                genres.append(genre)
         events = models.Gig.objects.filter(involved_parties__gs_id=party.gs_id)
         for event in events:
             if event.event_id == gig.event_id:
@@ -60,11 +66,15 @@ def event(request, event_id):
                 print(event_id)
                 print(event.event_id)
                 related_events.append(event)
-    
+    if len(genres) > 5:
+        excess_genres = len(genres) - 5
+        genres = genres[:5]
     return render(request, 'web/event.html', {
         "gig": gig,
         "involved_parties": involved_parties,
         "related_events": related_events[:3],
+        "genres": genres,
+        "excess_genres": excess_genres,
     })
 
 def all(request):
@@ -77,7 +87,7 @@ def all(request):
 #def filter_category(request, category):
  #   q_set = Gig.objects.filter(subcategory=category)
   #  pass
-
+'''OLD FILTER VIEW FUNCTION
 def filter(request):
     genres = set(request.GET['genres'].split(','))
     city = request.GET['city']
@@ -105,6 +115,53 @@ def filter(request):
                     filtered_list.append(event)
                     break
     return render(request, 'web/index.html', {'gigs': filtered_list, 'cities': cities})
+'''
+
+def filter(request):
+    all_events = models.Gig.objects.order_by('start_date').all()
+    genre_list = []
+    city_list = []
+    try:
+        genres = set(request.GET["genres"].split(','))
+        for event in all_events:
+            for party in event.involved_parties.all():
+                if party.entity_type != 'Venue':
+                    party_genres = [slugify(genre) for genre in party.get_genres()]
+                    party_genres = set(party_genres)
+                    if party_genres.intersection(genres):
+                        genre_list.append(event)
+    except Exception as e:
+        print(e)
+    try:
+        city = request.GET["city"]
+        for event in all_events:
+            city_slug = slugify(event.city)
+            if city_slug == city:
+                city_list.append(event)
+    except Exception as e:
+        print(e)
+    if city_list and genre_list:
+        result = set(city_list).intersection((set(genre_list)))
+    elif city_list and not genre_list:
+        result = set(city_list)
+    elif genre_list and not city_list:
+        result = set(genre_list)
+    else:
+        result = set()
+    ##get all cities and genres to display
+    cities = []
+    for event in result:
+        if event.city not in cities:
+            cities.append(event.city)
+    genres = []
+    for event in result:
+        for party in event.involved_parties.all():
+            party_genres = party.get_genres()
+            for genre in party_genres:
+                if genre not in genres:
+                    genres.append(genre)
+    result = list(result)
+    return render(request, 'web/index.html', {'gigs': result, 'cities': cities, 'genres': genres})
 
 def add_event(request, fb_id):
     tasks.get_event_data.delay(fb_id)
@@ -114,11 +171,18 @@ def today(request):
     today = datetime.date.today()
     q_set = models.Gig.objects.filter(start_date=today)
     cities = []
+    genres = []
     for event in q_set:
         if event.city not in cities:
             cities.append(event.city)
-    return render(request, 'web/today.html', {'gigs': q_set, 'cities': cities})
+        for party in event.involved_parties.all():
+            party_genres = party.get_genres()
+            for genre in party_genres:
+                if genre not in genres:
+                    genres.append(genre)
+    return render(request, 'web/today.html', {'gigs': q_set, 'cities': cities, 'genres': genres})
 
+'''OLD TODAY FILTER
 def today_filter(request):
     city = request.GET['city']
     today = datetime.date.today()
@@ -136,16 +200,73 @@ def today_filter(request):
     else:
         result_list = q_set
     return render(request, 'web/today.html', {'gigs': result_list, 'cities': cities})
+'''
+
+def today_filter(request):
+    today = datetime.date.today()
+    today_events = models.Gig.objects.filter(start_date=today)
+    genre_list = []
+    city_list = []
+    try:
+        genres = set(request.GET["genres"].split(','))
+        for event in today_events:
+            for party in event.involved_parties.all():
+                if party.entity_type != 'Venue':
+                    party_genres = [slugify(genre) for genre in party.get_genres()]
+                    party_genres = set(party_genres)
+                    if party_genres.intersection(genres):
+                        genre_list.append(event)
+    except Exception as e:
+        print(e)
+    try:
+        city = request.GET["city"]
+        for event in today_events:
+            city_slug = slugify(event.city)
+            if city_slug == city:
+                city_list.append(event)
+    except Exception as e:
+        print(e)
+    if city_list and genre_list:
+        result = set(city_list).intersection((set(genre_list)))
+    elif city_list and not genre_list:
+        result = set(city_list)
+    elif genre_list and not city_list:
+        result = set(genre_list)
+    else:
+        result = set()
+    ##get all cities and genres to display
+    cities = []
+    for event in result:
+        if event.city not in cities:
+            cities.append(event.city)
+    genres = []
+    for event in result:
+        for party in event.involved_parties.all():
+            party_genres = party.get_genres()
+            for genre in party_genres:
+                if genre not in genres:
+                    genres.append(genre)
+    result = list(result)
+    return render(request, 'web/today.html', {'gigs': result, 'cities': cities, 'genres': genres})
+
+
 
 def tomorrow(request):
     tomorrow = datetime.date.today() + datetime.timedelta(days=1)
     q_set = models.Gig.objects.filter(start_date=tomorrow)
     cities = []
+    genres = []
     for event in q_set:
         if event.city not in cities:
             cities.append(event.city)
-    return render(request, 'web/tomorrow.html', {'gigs': q_set, 'cities': cities})
+        for party in event.involved_parties.all():
+            party_genres = party.get_genres()
+            for genre in party_genres:
+                if genre not in genres:
+                    genres.append(genre)
+    return render(request, 'web/tomorrow.html', {'gigs': q_set, 'cities': cities, 'genres': genres})
 
+'''OLD TOMORROW FILTER
 def tomorrow_filter(request):
     city = request.GET['city']
     tomorrow = datetime.date.today() + datetime.timedelta(days=1)
@@ -163,6 +284,56 @@ def tomorrow_filter(request):
     else:
         result_list = q_set
     return render(request, 'web/tomorrow.html', {'gigs': result_list, 'cities': cities})
+'''
+
+def tomorrow_filter(request):
+    tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+    tomorrow_events = models.Gig.objects.filter(start_date=tomorrow)
+    genre_list = []
+    city_list = []
+    try:
+        genres = set(request.GET["genres"].split(','))
+        for event in tomorrow_events:
+            for party in event.involved_parties.all():
+                if party.entity_type != 'Venue':
+                    party_genres = [slugify(genre) for genre in party.get_genres()]
+                    party_genres = set(party_genres)
+                    if party_genres.intersection(genres):
+                        genre_list.append(event)
+    except Exception as e:
+        print(e)
+    try:
+        city = request.GET["city"]
+        for event in tomorrow_events:
+            city_slug = slugify(event.city)
+            if city_slug == city:
+                city_list.append(event)
+    except Exception as e:
+        print(e)
+    if city_list and genre_list:
+        result = set(city_list).intersection((set(genre_list)))
+    elif city_list and not genre_list:
+        result = set(city_list)
+    elif genre_list and not city_list:
+        result = set(genre_list)
+    else:
+        result = set()
+    ##get all cities and genres to display
+    cities = []
+    for event in result:
+        if event.city not in cities:
+            cities.append(event.city)
+    genres = []
+    for event in result:
+        for party in event.involved_parties.all():
+            party_genres = party.get_genres()
+            for genre in party_genres:
+                if genre not in genres:
+                    genres.append(genre)
+    result = list(result)
+    return render(request, 'web/today.html', {'gigs': result, 'cities': cities, 'genres': genres})
+
+
 
 def date(request, year, month, day):
     year = int(year)
@@ -171,11 +342,18 @@ def date(request, year, month, day):
     date = datetime.date(year=year, month=month, day=day)
     q_set = models.Gig.objects.filter(start_date=date)
     cities = []
+    genres = []
     for event in q_set:
         if event.city not in cities:
             cities.append(event.city)
-    return render(request, 'web/date.html', {'gigs': q_set, 'cities': cities, 'year': int(year), 'month': int(month), 'day': int(day)})
+        for party in event.involved_parties.all():
+            party_genres = party.get_genres()
+            for genre in party_genres:
+                if genre not in genres:
+                    genres.append(genre)
+    return render(request, 'web/date.html', {'gigs': q_set, 'cities': cities, 'year': int(year), 'month': int(month), 'day': int(day), 'genres': genres})
 
+'''OLD DATE FILTER
 def date_filter(request, year, month, day):
     city = request.GET['city']
     year = int(year)
@@ -196,4 +374,54 @@ def date_filter(request, year, month, day):
     else:
         result_list = q_set
     return render(request, 'web/date.html', {'gigs': result_list, 'cities': cities, 'year': int(year), 'month': int(month), 'day': int(day)})
+'''
 
+def date_filter(request, year, month, day):
+    year = int(year)
+    month = int(month)
+    day = int(day)
+    date = datetime.date(year=year, month=month, day=day)
+    date_events = models.Gig.objects.filter(start_date=date)
+    genre_list = []
+    city_list = []
+    try:
+        genres = set(request.GET["genres"].split(','))
+        for event in date_events:
+            for party in event.involved_parties.all():
+                if party.entity_type != 'Venue':
+                    party_genres = [slugify(genre) for genre in party.get_genres()]
+                    party_genres = set(party_genres)
+                    if party_genres.intersection(genres):
+                        genre_list.append(event)
+    except Exception as e:
+        print(e)
+    try:
+        city = request.GET["city"]
+        for event in date_events:
+            city_slug = slugify(event.city)
+            if city_slug == city:
+                city_list.append(event)
+    except Exception as e:
+        print(e)
+    if city_list and genre_list:
+        result = set(city_list).intersection((set(genre_list)))
+    elif city_list and not genre_list:
+        result = set(city_list)
+    elif genre_list and not city_list:
+        result = set(genre_list)
+    else:
+        result = set()
+    ##get all cities and genres to display
+    cities = []
+    for event in result:
+        if event.city not in cities:
+            cities.append(event.city)
+    genres = []
+    for event in result:
+        for party in event.involved_parties.all():
+            party_genres = party.get_genres()
+            for genre in party_genres:
+                if genre not in genres:
+                    genres.append(genre)
+    result = list(result)
+    return render(request, 'web/today.html', {'gigs': result, 'cities': cities, 'genres': genres})
