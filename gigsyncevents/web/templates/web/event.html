@@ -55,6 +55,14 @@
 
 				<div id="about-section" class="container d-flex flex-column justify-content-start border-bottom">
 					<p id="about" class="">About this Event</p>
+					<div id="genres" class="container d-flex justify-content-center">
+						{% for genre in genres %}
+						<button type="button" class="btn btn-outline-secondary mx-1">{{ genre }}</button>
+						{% endfor %}
+						{% if excess_genres > 0 %}
+						<button type="button" class="btn btn-outline-secondary mx-1"> + {{ excess_genres }} more</button>
+						{% endif %}
+					</div>
 					<p class="text-muted" id="about-text">
                         {{ gig.description }}
 					</p>

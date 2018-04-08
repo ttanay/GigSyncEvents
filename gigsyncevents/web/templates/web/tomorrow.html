@@ -50,12 +50,24 @@
                             <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                    <div class="modal-body">
+                    <div class="modal-body d-flex justify-content-around">
                         <div class="d-flex flex-column">
                             <p class="lead">City</p>
                             <ul>
                                 {% for city in cities %}
                                 <input type="radio" name="city" value="{{ city }}"> {{ city }}<br>
+                                {% empty %}
+                                Sorry! No filters for cities available.
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="d-flex flex-column">
+                            <p class="lead">Genres</p>
+                            <ul>
+                                {% for genre in genres %}
+                                <input type="checkbox" name="genre" value="{{ genre }}"> {{ genre }}<br>
+                                {% empty %}
+                                <p>Sorry! No filters for genres available.</p>
                                 {% endfor %}
                             </ul>
                         </div>
@@ -181,20 +193,80 @@
            window.location = redirect_url;
            console.log(city)
        });*/
-            $('#apply').click(function(){
-                var radios = document.getElementsByName('city');
-                for (var i = 0, length = radios.length; i < length; i++)
-                {
-                    if (radios[i].checked)
-                    {
-                    // do whatever you want with the checked radio
-                    var city = radios[i].value;
-                    console.log(city);
-                    // only one radio can be logically checked, don't check the rest
-                    break;
-                    }
-                }
-            });
+       $('#apply').click(function(){
+        var radios = document.getElementsByName('city');
+        var checks = document.getElementsByName('genre');
+        var city = '', genres = [];
+        for (var i = 0, length = radios.length; i < length; i++)
+        {
+            if (radios[i].checked)
+            {
+            // do whatever you want with the checked radio
+            city = radios[i].value;
+            console.log(city);
+            city = convertToSlug(city);
+            // only one radio can be logically checked, don't check the rest
+            break;
+            }
+        }
+        for(var i = 0, length = checks.length; i < length; i++){
+            if(checks[i].checked){
+                var genre = checks[i].value;
+                console.log(genre);
+                genre = convertToSlug(genre);
+                genres.push(genre);
+            }
+        }
+        var params = '?';
+        var params_city = 'city=';
+        var params_genres = 'genres=';
+        if(city != ''){
+            params_city += city;
+        }
+        if(genres !== []){
+            console.log(genres);
+            for(var i = 0; i < genres.length; i++){
+                params_genres += genres[i] + ',';
+            }
+        }
+
+        if(params_city === 'city=' && params_genres === 'genres='){
+            //$('#filterModal').modal('hide');
+            alert('Please select filters');
+        }
+        else{
+            if(params_city === 'city=' && params_genres !== 'genres='){
+                params += params_genres;
+            }
+            else if(params_city !== 'city=' && params_genres === 'genres='){
+                params += params_city;
+            }
+            else if(params_city !== 'city=' && params_genres !== 'genres='){
+                params += params_city + '&' + params_genres;
+            }
+            console.log(params);
+            //alert(params);
+            redirect_url = window.location.protocol + '//' + window.location.host + '/tomorrow/filter' + params;
+            window.location = redirect_url;
+        }
+
+   });
+    
+    $('#filterModal').on('hidden.bs.modal', function () {
+        var radios = document.getElementsByName('city');
+        var checks = document.getElementsByName('genre');
+        for(var i = 0; i < radios.length; i++){
+            if(radios[i].checked){
+                radios[i].checked = false;
+                break;
+            }
+        }
+        for(var i = 0; i < checks.length; i++){
+            if(checks[i].checked){
+                checks[i].checked = false;
+            }
+        }
+    });
         });
     </script>
 {% endblock %}
