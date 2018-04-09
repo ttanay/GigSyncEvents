@@ -425,3 +425,9 @@ def date_filter(request, year, month, day):
                     genres.append(genre)
     result = list(result)
     return render(request, 'web/today.html', {'gigs': result, 'cities': cities, 'genres': genres})
+
+def about(request):
+    return render(request, 'web/about.html')
+
+def howto(request):
+    return render(request, 'web/howto.html')
