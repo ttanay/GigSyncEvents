@@ -1,0 +1,26 @@
+{% extends "web/base.html" %}
+{% block title %}GigSync Events|About{% endblock %}
+
+{% block nav %}
+<li class="nav-item m-sm-2">
+        <a class="nav-link" href="{% url 'web:home' %}">Home</a>
+    </li>
+    <li class="nav-item m-sm-2">
+        <a class="nav-link" href="{% url 'web:about' %}">About</a>
+    </li>
+    <li class="nav-item active m-sm-2">
+        <a class="nav-link" href="#">HowTo</a>
+    </li>
+    <li class="nav-item">
+        <a href="http://www.gigsync.in/#signup-tab"><button class="btn btn-outline-gspurple my-2" type="submit">Register</button></a>
+    </li>
+{% endblock %}
+
+{% block main %}
+<div class="container my-5">
+    <div class="d-flex flex-column justify-content-center">
+        <p class="lead text-center">How To</p>
+        <p class="text-center">How to text.</p>
+    </div>
+</div>
+{% endblock %}
