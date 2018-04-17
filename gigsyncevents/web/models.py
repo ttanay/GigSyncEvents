@@ -5,6 +5,17 @@ import requests
 import datetime
 # Create your models here.
 
+class AccessToken(models.Model):
+    long_form_access_token = models.TextField()
+    app_id = models.TextField()
+    app_secret = models.TextField()
+
+    @classmethod
+    def create(access_token, app_id, app_secret):
+        at_obj = cls(access_token)
+        return at_obj
+
+
 class GSProfile(models.Model):
     """
     Schema:

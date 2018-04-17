@@ -241,6 +241,19 @@ def remove_past_events():
 def dummy():
     print('dummy cron running')
     return
+
+@shared_task
+def exchange_fb_token(app_id, app_secret, access_token):
+    call = "https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id={}&client_secret={}&fb_exchange_token={}".format(app_id, app_secret, access_token)
+    r = request.get(call)
+    access_json = json.loads(r.text)
+    try:
+        access_token = access_json["access_token"]
+    except Exception as e:
+        print("An error occurred")
+        return
+    return access_token
+
 '''
 @task()
 def get_all_event_count():

@@ -1,11 +1,18 @@
 import requests, json, bs4, re, datetime
 #from fb_id import profile_regx_accept
-from .fb_credentials import access_token
+#from .fb_credentials import access_token
 from .models import GSProfile, FBProfile
 from . import models
 
 #TODO: Make API, remove occurred events
 
+
+try:
+    access_tokens = models.AccessToken.objects.all()
+    latest_access_token = access_tokens.reverse()[0]
+    access_token = latest_access_token.access_token
+except:
+    from .fb_credentials import access_token
 
 profile_regx_accept = re.compile("https:\/\/www\.facebook\.com\/.*")
 
