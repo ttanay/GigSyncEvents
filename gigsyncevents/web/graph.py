@@ -45,7 +45,33 @@ def get_user_events(fb_id):
     user_events_json = json.loads(r.text)
     return user_events_json
 
+def get_event_id(href):
+    event_id = href.split("/")[2].split("?")[0]
+    return event_id
 
+def scrape(url):
+    href_re = re.compile("/events/\d+.*")
+    r = requests.get(url)
+    soup = BeautifulSoup(r.text, "lxml")
+    anchors = []
+    anchors = soup.find_all("a", {"href": href_re})
+    event_ids = []
+    for a in anchors:
+        event_ids.append(get_event_id(a.attrs['href']))
+    #for event_id in event_ids:
+    #   GET EVENT DATA from graph.facebook.com/<event-id>
+    return event_ids
+
+def get_user_events_scrape(fb_id):
+    api_url = "https://graph.facebook.com/{}?access_token={}&fields=description,end_time,start_time,name,place,id,cover"
+    url = "https://mbasic.facebook.com/{}?v=events".format(fb_id)
+    event_ids = scrape(url)
+    for event_id in event_ids:
+        url = api_url.format(fb_id, access_token)
+        
+    
+
+# CHANGE TO PARSE THE JSON DATA FOR EACH EVENT
 def parse_user_events(user_events_json):
     raw_json = user_events_json
     user_events = []

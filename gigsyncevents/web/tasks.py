@@ -186,7 +186,7 @@ def get_event_data(fb_id):
     for owner in owners:
         owner_fb_profile_link = owner.fb_profile_link
         owner_fb_profile_links.append(owner_fb_profile_link)
-    user_events_json = graph.get_user_events(fb_id)
+    user_events_json = graph.get_user_events_scrape(fb_id)
     user_events = graph.parse_user_events(user_events_json)
     for user_event in user_events:
         is_valid = graph.is_valid_event(user_event["event_id"])
